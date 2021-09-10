@@ -1,19 +1,18 @@
 import 'dart:convert';
 
-import 'package:flutter/services.dart';
-import '../presentation/widgets/aio_widgets/my_button.dart';
-import '../presentation/widgets/aio_widgets/my_password_texfield.dart';
-import '../presentation/widgets/aio_widgets/my_text_field.dart';
+import '../widgets/aio_widgets/my_button.dart';
+import '../widgets/aio_widgets/my_password_texfield.dart';
+import '../widgets/aio_widgets/my_text_field.dart';
 // import 'package:trust_fall/trust_fall.dart';
-import '../utils/constants.dart';
+import '../../utils/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 
-import '../utils/user.dart';
-import '../utils/colors.dart';
-import '../utils/margin_padding.dart';
-import '../utils/routes.dart';
-import '../utils/styles.dart';
+import '../../utils/user.dart';
+import '../../utils/colors.dart';
+import '../../utils/margin_padding.dart';
+import '../../utils/routes.dart';
+import '../../utils/styles.dart';
 
 class LoginScreen extends StatefulWidget {
   LoginScreen({Key? key}) : super(key: key);
