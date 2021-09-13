@@ -2,23 +2,21 @@ import 'dart:async';
 
 import 'package:ntp/ntp.dart';
 
-import '../utils/user.dart';
+import '../../utils/user.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../utils/routes.dart';
-import '../utils/colors.dart';
+import '../router/routes.dart';
+import '../../utils/colors.dart';
 
 import 'dart:convert';
 
 import 'package:package_info/package_info.dart';
 
-import '../utils/constants.dart';
-
-import 'package:dio/dio.dart';
+import '../../utils/constants.dart';
 
 class SplashScreen extends StatefulWidget {
   SplashScreen({Key? key}) : super(key: key);
@@ -34,17 +32,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   bool _is72HoursComplete = false;
 
-  //dIO VARIABLE FOR http request with a base url(options) to be implemented in the initstate.
-  Dio? _dio;
-
-  // new Dio with a BaseOptions instance.
-  //Note * : To Test a Local APi In Emuator Use HOST IP: 10.0.2.2
-  BaseOptions _options = new BaseOptions(
-    baseUrl: Constants.baseUrlLocal,
-    connectTimeout: 52000,
-    receiveTimeout: 52000,
-  );
-
   // AppUpdateInfo _updateInfo;
 
   bool _isAppUpdateAvailable = false;
@@ -57,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     //Applying base url with some other option in global class variable of DIO For server request.
-    _dio = new Dio(_options);
+    // _dio = new Dio(_options);
   }
 
   //Delaying for 3000 milisecond to get spash effect
@@ -70,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
   //Navigating to home
   void _navigateToHome() {
     Navigator.of(context).pushReplacementNamed(
-      MyRoutes.HOME_ROUTE,
+      MyRoutes.HOME_SP_ROUTE,
       // arguments: {
       //   'EmployeeID': _empID,
       //   'Designation': _employeeDesignation,
@@ -144,33 +131,33 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   //Method To get The Current App Verion From Server.
-  void _getSplashDataFromServer(String empId) async {
-    // print('Calld');
-    var map = new Map<String, dynamic>();
-    map['appkey'] = 'all';
-    map['EmployeeID'] = empId != null ? empId.toUpperCase() : null;
-    // map['cmId'] = _cmId != null ? _cmId : '';
+  // void _getSplashDataFromServer(String empId) async {
+  //   // print('Calld');
+  //   var map = new Map<String, dynamic>();
+  //   map['appkey'] = 'all';
+  //   map['EmployeeID'] = empId != null ? empId.toUpperCase() : null;
+  //   // map['cmId'] = _cmId != null ? _cmId : '';
 
-    // print(map.toString());
-    // print(_dio.options.baseUrl.toString());
-    try {
-      Response response = await _dio!
-          .post("/App_ver_stop_com_coninfo_covid_all.php", data: map);
+  //   // print(map.toString());
+  //   // print(_dio.options.baseUrl.toString());
+  //   try {
+  //     Response response = await _dio!
+  //         .post("/App_ver_stop_com_coninfo_covid_all.php", data: map);
 
-      if (response.statusCode == 200) {
-        // print(response.toString());
+  //     if (response.statusCode == 200) {
+  //       // print(response.toString());
 
-        // return;
-        //Validation For Other Check And Do Accroedingly
+  //       // return;
+  //       //Validation For Other Check And Do Accroedingly
 
-      } else {
-        print('A network error occurred');
-        throw Exception('Failed to Load App Update Date!');
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  //     } else {
+  //       print('A network error occurred');
+  //       throw Exception('Failed to Load App Update Date!');
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   // //Method
   // void _validationCheckMethod(var response) {

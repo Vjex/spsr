@@ -30,8 +30,6 @@ dependencies:
   cupertino_icons: ^1.0.2
   # For calendar View
   flutter_calendar_carousel: ^2.0.1
-# library for Api request
-  dio: ^4.0.0
 # For date formatting  
   intl: ^0.17.0
 # For Storing the Data locally  
@@ -53,10 +51,8 @@ dependencies:
   package_info: ^2.0.2
 # To Launch A Specific Url From the App to any Browser.
   url_launcher: ^6.0.6
-# For state Management of the app instead of setState ();
-  provider: ^5.0.0 
 # To get continous stream of  internet connectivity
-  connectivity: ^3.0.6
+  connectivity_plus: ^1.1.0
 # To work With Web View In Correct Way. // Add min sdk 19 in build.gradle for android and info.plist for ios. 
   webview_flutter: ^2.0.8
 # To Get User Current Location
@@ -66,8 +62,13 @@ dependencies:
 # To get Address From The Cordinates.
   geocoder: ^0.2.1
 # Current Server Time  
-  ntp: ^2.0.0   
-
+  ntp: ^2.0.0
+# for State management
+  flutter_bloc: ^7.2.0   
+# for http request
+  http: ^0.13.3
+# To get the Debuging methods for all blocs
+  hydrated_bloc: ^7.0.1
 
 
 

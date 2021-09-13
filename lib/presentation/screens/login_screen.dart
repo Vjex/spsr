@@ -1,17 +1,19 @@
 import 'dart:convert';
 
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:spsr/logic/cubit/auth_cubit.dart';
+
 import '../widgets/aio_widgets/my_button.dart';
 import '../widgets/aio_widgets/my_password_texfield.dart';
 import '../widgets/aio_widgets/my_text_field.dart';
 // import 'package:trust_fall/trust_fall.dart';
-import '../../utils/constants.dart';
+import 'package:spsr/services/string_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 
 import '../../utils/user.dart';
 import '../../utils/colors.dart';
 import '../../utils/margin_padding.dart';
-import '../../utils/routes.dart';
+import '../router/routes.dart';
 import '../../utils/styles.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -31,27 +33,20 @@ class _LoginScreenState extends State<LoginScreen> {
   late String _idlabel;
 
   // new Dio with a BaseOptions instance.
-  //Note * : To Test a Local APi In Emuator Use HOST IP: 10.0.2.2
-  BaseOptions _options = new BaseOptions(
-    baseUrl: Constants.baseUrlLocal,
-    connectTimeout: 42000,
-    receiveTimeout: 42000,
-  );
-  //dIO VARIABLE FOR http request with a base url(options) to be implemented in the initstate.
-  late Dio _dio;
 
   //Error Strings for this screen.
   String? _passwordError;
   late String _passwordlabel;
+
+  //Radio selectio for Login Type
+  int _radioSelected = 1;
+  String _radioVal = 'sp';
 
   //Scafoold Global key for this screen
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
-    //Applying base url with some other option in global class variable of DIO For server request.
-    _dio = new Dio(_options);
-
     //Initalising text field labels.
     _idlabel = 'Phone or Email';
     _passwordlabel = 'Password';
@@ -83,18 +78,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: MyColors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          color: MyColors.white,
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          _loadingDialog();
+        } else if (state is AuthLoginSPSuccess) {
+          //Remove The Loading Dialog
+          Navigator.of(context).pop();
+          //Now Navigate to SP Home Screen
+          Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
+        } else if (state is AuthLoginSRSuccess) {
+          Navigator.of(context).pop();
+          //Now Navigate to SR Home Screen
+          Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SR_ROUTE);
+        } else if (state is AuthFailure) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: MyColors.white,
+        body: SingleChildScrollView(
           child: Container(
-            padding: MarginPadding.PADDING_SYMMETRIC_20,
-            margin: MarginPadding.MARGIN_ONLY_Top_20,
-            width: MediaQuery.of(context).size.width,
-            child: _getCompleteLoginScreen(),
+            margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            color: MyColors.white,
+            child: Container(
+              padding: MarginPadding.PADDING_SYMMETRIC_20,
+              margin: MarginPadding.MARGIN_ONLY_Top_20,
+              width: MediaQuery.of(context).size.width,
+              child: _getCompleteLoginScreen(),
+            ),
           ),
         ),
       ),
@@ -121,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SizedBox(
           height: 40,
         ),
+
         //Text
         Container(
           child: Center(
@@ -134,6 +148,36 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 20,
         ),
 
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('SP'),
+            Radio(
+              value: 1,
+              groupValue: _radioSelected,
+              activeColor: Colors.blue,
+              onChanged: (value) {
+                setState(() {
+                  _radioSelected = value as int;
+                  _radioVal = 'sp';
+                });
+              },
+            ),
+            Text('SR'),
+            Radio(
+              value: 2,
+              groupValue: _radioSelected,
+              activeColor: Colors.pink,
+              onChanged: (value) {
+                setState(() {
+                  _radioSelected = value as int;
+                  _radioVal = 'sr';
+                });
+              },
+            )
+          ],
+        ),
+
         //TextField
         MyTextField(
           autofocus: false,
@@ -141,7 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
           labelTextTextField: _idlabel,
           errorText: _idError,
           maxLines: 1,
-          maxLength: 20,
+          maxLength: 60,
         ),
 
         //TextField
@@ -159,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         //Login Button
         MyButton(
-          onClick: () {},
+          onClick: _onSignInClicled,
           btnTxt: 'Login',
           backColor: MyColors.greenColor,
           btnTextStyle: TextStyle(
@@ -228,54 +272,54 @@ class _LoginScreenState extends State<LoginScreen> {
   // }
 
   //Login Employee Call Get API.
-  void _loginEmployee(Dio dio, var employeeId, var password) async {
-    //Map the required json Data to send in the Body of the Post request.
-    var map = new Map<String, dynamic>();
-    map['LoginId'] = employeeId;
-    map['refrance'] = password;
-    map['appkey'] = 'ces';
+  // void _loginEmployee(Dio dio, var employeeId, var password) async {
+  //   //Map the required json Data to send in the Body of the Post request.
+  //   var map = new Map<String, dynamic>();
+  //   map['LoginId'] = employeeId;
+  //   map['refrance'] = password;
+  //   map['appkey'] = 'ces';
 
-    print(map.toString());
+  //   print(map.toString());
 
-    //Special Bool to  Show Adhaar Verification
-    bool _isAdhaarVerWarnoingDialogToShow = false;
-    String msgDialogAdhaarVer = 'Please verify your adhaar.';
-    String currTimegAdhaar;
+  //   //Special Bool to  Show Adhaar Verification
+  //   bool _isAdhaarVerWarnoingDialogToShow = false;
+  //   String msgDialogAdhaarVer = 'Please verify your adhaar.';
+  //   String currTimegAdhaar;
 
-    try {
-      Response response = await _dio.post('/GetLogin.php', data: map);
+  //   try {
+  //     Response response = await _dio.post('/GetLogin.php', data: map);
 
-      //Show message to
-      // Future.delayed(duration)
+  //     //Show message to
+  //     // Future.delayed(duration)
 
-      if (response.statusCode == 200) {
-        var decodeObject = jsonDecode(response.toString());
+  //     if (response.statusCode == 200) {
+  //       var decodeObject = jsonDecode(response.toString());
 
-        // print(decodeObject);
+  //       // print(decodeObject);
 
-        int responseStatus = decodeObject['status'] as int;
-        /////////////////////////////Filtering All the Employee Details to Save in Shared Prefrences //////////////////////////
-        var employeeDetailsObject = decodeObject['employ_details'];
-      } else {
-        final snackBar = SnackBar(
-            content: Text('OOPS,Server can not be reached. Please try again.'));
+  //       int responseStatus = decodeObject['status'] as int;
+  //       /////////////////////////////Filtering All the Employee Details to Save in Shared Prefrences //////////////////////////
+  //       var employeeDetailsObject = decodeObject['employ_details'];
+  //     } else {
+  //       final snackBar = SnackBar(
+  //           content: Text('OOPS,Server can not be reached. Please try again.'));
 
-        // Find the Scaffold in the widget tree and use it to show a SnackBar.
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //       // Find the Scaffold in the widget tree and use it to show a SnackBar.
+  //       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-        Navigator.pop(context); //pop dialog
-      }
-    } catch (e) {
-      Navigator.pop(context); //pop dialog
-      final snackBar = SnackBar(
-          content: Text('OOPS,Server can not be reached. Please try again.'));
+  //       Navigator.pop(context); //pop dialog
+  //     }
+  //   } catch (e) {
+  //     Navigator.pop(context); //pop dialog
+  //     final snackBar = SnackBar(
+  //         content: Text('OOPS,Server can not be reached. Please try again.'));
 
-      // Find the Scaffold in the widget tree and use it to show a SnackBar.
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  //     // Find the Scaffold in the widget tree and use it to show a SnackBar.
+  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-      print(e);
-    }
-  }
+  //     print(e);
+  //   }
+  // }
 
   //Show Dialog Method
   void _loadingDialog() {
@@ -308,27 +352,64 @@ class _LoginScreenState extends State<LoginScreen> {
 
   //Method to be called on Sign In Button Click.
   void _onSignInClicled() {
-    _loadingDialog();
+    // _loadingDialog();
 
     //Setting error Back to null;
     _idError = '';
     _passwordError = '';
 
+    setState(() {});
+
     //Validating the Employee Id and Password Field.
-    String employeeIdString = _idController.text.trim();
+    String idString = _idController.text.trim();
     String passwordString = _passwordController.text.trim();
 
     //validating Employee Id
-    if (employeeIdString.length < 9) {
+    if (idString.isEmpty || idString.length < 3) {
       setState(() {
         _idError = 'Invalid ID';
       });
-      Navigator.pop(context); //pop dialog
+
       return;
     }
 
+    //Vlidating Email/Phone
+    if (idString.contains('@')) {
+      //ValidateEmail
+      if (!idString.isValidEmail()) {
+        setState(() {
+          _idError = 'Invalid Email-ID.';
+        });
+        return;
+      }
+    } else {
+      //Validating Phone
+      if (!idString.isNumeric() ||
+          idString.length < 10 ||
+          idString.length > 10) {
+        setState(() {
+          _idError = 'Invalid mobile.';
+        });
+        return;
+      }
+    }
+
+    //Validating Password
+    if (passwordString.isEmpty) {
+      _passwordError = 'required.';
+
+      return;
+    }
+
+    //Now Call The Login Method depending upon login type.
+    if (_radioVal == 'sp') {
+      BlocProvider.of<AuthCubit>(context).loginSpUser(idString, passwordString);
+    } else {
+      BlocProvider.of<AuthCubit>(context).loginSrUser(idString, passwordString);
+    }
+
     //Now Login The User
-    _loginEmployee(_dio, employeeIdString, passwordString);
+    // _loginEmployee(_dio, employeeIdString, passwordString);
   }
 
   //Method to be called on Sign In Button Click.
