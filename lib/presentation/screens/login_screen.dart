@@ -54,25 +54,25 @@ class _LoginScreenState extends State<LoginScreen> {
     //Checking Deivce Is Trusted or safe if Not Then Auto Close the Application.
     // _checkDeviceSafe();
 
-    User.getEmpAndPwdForLogin().then((data) {
-      String empId =
-          data['empIdLogin'] != null && data['empIdLogin']!.isNotEmpty
-              ? data['empIdLogin'] as String
-              : '';
-      String pwd = data['pwdLogin'] != null && data['pwdLogin']!.isNotEmpty
-          ? data['pwdLogin'] as String
-          : '';
+    // User.getEmpAndPwdForLogin().then((data) {
+    //   String empId =
+    //       data['empIdLogin'] != null && data['empIdLogin']!.isNotEmpty
+    //           ? data['empIdLogin'] as String
+    //           : '';
+    //   String pwd = data['pwdLogin'] != null && data['pwdLogin']!.isNotEmpty
+    //       ? data['pwdLogin'] as String
+    //       : '';
 
-      // Auto Providing Emp and password If Saved.
-      if (empId.isNotEmpty) {
-        _idController.text = empId.toUpperCase();
-      }
-      if (pwd.isNotEmpty) {
-        _passwordController.text = pwd;
-      }
+    //   // Auto Providing Emp and password If Saved.
+    //   if (empId.isNotEmpty) {
+    //     _idController.text = empId.toUpperCase();
+    //   }
+    //   if (pwd.isNotEmpty) {
+    //     _passwordController.text = pwd;
+    //   }
 
-      setState(() {});
-    });
+    //   setState(() {});
+    // });
     super.initState();
   }
 
@@ -254,72 +254,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ],
     );
   }
-
-  // //Method To Check Whether The Device IS Rooted or trusted
-  // void _checkDeviceSafe() async {
-  //   try {
-  //     bool isJailBroken = await TrustFall.isJailBroken;
-  //     bool isRealDevice = await TrustFall.isRealDevice;
-  //     // bool isTrustFall3 = await TrustFall.isOnExternalStorage;
-
-  //     //IF Device is Not Trusted Then Auto Close The Application.
-  //     if (isJailBroken || !isRealDevice) {
-  //       SystemChannels.platform.invokeMethod('SystemNavigator.pop');
-  //     }
-  //   } catch (e) {
-  //     print('Errorrerrrrr $e');
-  //   }
-  // }
-
-  //Login Employee Call Get API.
-  // void _loginEmployee(Dio dio, var employeeId, var password) async {
-  //   //Map the required json Data to send in the Body of the Post request.
-  //   var map = new Map<String, dynamic>();
-  //   map['LoginId'] = employeeId;
-  //   map['refrance'] = password;
-  //   map['appkey'] = 'ces';
-
-  //   print(map.toString());
-
-  //   //Special Bool to  Show Adhaar Verification
-  //   bool _isAdhaarVerWarnoingDialogToShow = false;
-  //   String msgDialogAdhaarVer = 'Please verify your adhaar.';
-  //   String currTimegAdhaar;
-
-  //   try {
-  //     Response response = await _dio.post('/GetLogin.php', data: map);
-
-  //     //Show message to
-  //     // Future.delayed(duration)
-
-  //     if (response.statusCode == 200) {
-  //       var decodeObject = jsonDecode(response.toString());
-
-  //       // print(decodeObject);
-
-  //       int responseStatus = decodeObject['status'] as int;
-  //       /////////////////////////////Filtering All the Employee Details to Save in Shared Prefrences //////////////////////////
-  //       var employeeDetailsObject = decodeObject['employ_details'];
-  //     } else {
-  //       final snackBar = SnackBar(
-  //           content: Text('OOPS,Server can not be reached. Please try again.'));
-
-  //       // Find the Scaffold in the widget tree and use it to show a SnackBar.
-  //       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-  //       Navigator.pop(context); //pop dialog
-  //     }
-  //   } catch (e) {
-  //     Navigator.pop(context); //pop dialog
-  //     final snackBar = SnackBar(
-  //         content: Text('OOPS,Server can not be reached. Please try again.'));
-
-  //     // Find the Scaffold in the widget tree and use it to show a SnackBar.
-  //     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
-  //     print(e);
-  //   }
-  // }
 
   //Show Dialog Method
   void _loadingDialog() {

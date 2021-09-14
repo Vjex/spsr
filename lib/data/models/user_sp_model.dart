@@ -66,9 +66,9 @@ class SPModel {
       name: map['name'],
       mobile: map['mobile'],
       email: map['email'],
-      address: map['address'],
-      lat: map['lat_1'],
-      lng: map['lng_1'],
+      address: map['address'] != null ? map['address'] : '',
+      lat: map['lat_1'] != null ? map['lat_1'] : 0.0,
+      lng: map['lng_1'] != null ? map['lng_1'] : 0.0,
       createdDate: map['createdDate'] != null ? map['createdDate'] : '',
       updatedDate: map['updatedDate'] != null ? map['updatedDate'] : '',
     );

@@ -52,4 +52,10 @@ class AuthForgetSendOTPSuccess extends AuthState {}
 
 class AuthPasswordChangedSuccess extends AuthState {}
 
-class AuthFailure extends AuthState {}
+class AuthFailure extends AuthState {
+  final String erroMsg;
+
+  AuthFailure({
+    required this.erroMsg,
+  });
+}

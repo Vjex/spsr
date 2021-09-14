@@ -1,10 +1,9 @@
 import 'dart:convert';
 
-import 'package:spsr/constants/constant_strings.dart';
-import 'package:spsr/data/models/user_sp_model.dart';
-import 'package:spsr/data/models/user_sr_model.dart';
-import 'package:spsr/data/dataproviders/api_service.dart';
-import 'package:spsr/presentation/router/routes_screen.dart';
+import '/constants/constant_strings.dart';
+import '/data/models/user_sp_model.dart';
+import '/data/models/user_sr_model.dart';
+import '/data/dataproviders/api_service.dart';
 
 class AuthRepository {
   //Login SP
