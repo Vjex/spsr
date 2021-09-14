@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:geocoder/model.dart';
+
 import '/constants/constant_strings.dart';
 import '/data/models/user_sp_model.dart';
 import '/data/models/user_sr_model.dart';
@@ -55,6 +57,36 @@ class AuthRepository {
         final parsed = json.decode(response.body);
         if (parsed['status'] == 1) {
           return SRModel.fromMap(parsed['data']);
+        } else {
+          throw Exception(parsed['msg'] as String);
+        }
+      },
+    );
+  }
+
+  //SignUp SP
+  static APIService<dynamic> signUpSP(String name, String email, String mobile,
+      String pass, Coordinates position, Address address) {
+    var bodyP = {
+      'appkey': 'signUp',
+      'name': name,
+      'mobile': email,
+      'email': pass,
+      'address': address.addressLine,
+      'password': pass,
+      'lat': position.latitude,
+      'long': position.longitude,
+      'userT': 'sp'
+    };
+    return APIService(
+      // url: Uri.http(baseAPIEcommerce, endpoint),
+      url: Uri.parse(ConstantString.baseUrlApi + '/signup_sp_sr.php'),
+      body: bodyP,
+      // url: url,
+      parse: (response) {
+        final parsed = json.decode(response.body);
+        if (parsed['status'] == 1) {
+          return parsed;
         } else {
           throw Exception(parsed['msg'] as String);
         }

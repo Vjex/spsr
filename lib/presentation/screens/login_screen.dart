@@ -4,13 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spsr/logic/cubit/auth_cubit.dart';
 
 import '../widgets/aio_widgets/my_button.dart';
+import '../widgets/aio_widgets/every_screen_widget.dart';
 import '../widgets/aio_widgets/my_password_texfield.dart';
 import '../widgets/aio_widgets/my_text_field.dart';
 // import 'package:trust_fall/trust_fall.dart';
 import 'package:spsr/services/string_extensions.dart';
 import 'package:flutter/material.dart';
 
-import '../../utils/user.dart';
 import '../../utils/colors.dart';
 import '../../utils/margin_padding.dart';
 import '../router/routes.dart';
@@ -81,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthLoading) {
-          _loadingDialog();
+          loadingDialog(context);
         } else if (state is AuthLoginSPSuccess) {
           //Remove The Loading Dialog
           Navigator.of(context).pop();
@@ -238,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 onTap: () {
                   //Navigate to Forget password Screen
-                  Navigator.of(context).pushReplacementNamed(
+                  Navigator.of(context).pushNamed(
                     MyRoutes.FORGET_PASSWORD_ROUTE,
                   );
                 },
@@ -252,33 +252,6 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 20,
         ),
       ],
-    );
-  }
-
-  //Show Dialog Method
-  void _loadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            padding: MarginPadding.PADDING_SYMMETRIC_15_15,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CircularProgressIndicator(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                  ),
-                  child: Text("Please wait.."),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 

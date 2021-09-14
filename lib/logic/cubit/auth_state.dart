@@ -44,7 +44,12 @@ class AuthLoginSRSuccess extends AuthState {
   });
 }
 
-class AuthSignUpSPSuccess extends AuthState {}
+class AuthSignUpSPSuccess extends AuthState {
+  final int result;
+  AuthSignUpSPSuccess({
+    required this.result,
+  });
+}
 
 class AuthSignUpSRSuccess extends AuthState {}
 

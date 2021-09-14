@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:meta/meta.dart';
 import 'package:spsr/data/models/user_sp_model.dart';
 import 'package:spsr/data/models/user_sr_model.dart';
@@ -13,6 +15,31 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
+  //!SignUP Related/////////////////////////////////////////////LOGIN
+  //For Real Login By User
+  void signupSpUser(String name, String email, String mobile, String pass,
+      Coordinates position, Address address) async {
+    try {
+      //Emit Auth Loading
+      emit(AuthLoading());
+
+      await Future.delayed(const Duration(seconds: 2));
+
+      final data = await APIWeb().post(AuthRepository.signUpSP(
+          name, email, mobile, pass, position, address));
+
+      if (data['status'] == 1) {
+        emit(AuthSignUpSPSuccess(result: 1));
+      } else {
+        emit(AuthFailure(erroMsg: data['msg']));
+      }
+    } catch (e) {
+      print(e.toString());
+      emit(AuthFailure(erroMsg: e.toString()));
+    }
+  }
+
+  //!Login Related/////////////////////////////////////////////LOGIN
   //For Real Login By User
   void loginSpUser(String loginId, String refrence) async {
     try {

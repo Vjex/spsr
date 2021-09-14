@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:spsr/presentation/router/routes.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:spsr/logic/cubit/auth_cubit.dart';
+import 'package:spsr/presentation/widgets/aio_widgets/every_screen_widget.dart';
+
 import 'package:spsr/presentation/widgets/aio_widgets/my_button.dart';
 import 'package:spsr/presentation/widgets/aio_widgets/my_password_texfield.dart';
 import 'package:spsr/presentation/widgets/aio_widgets/my_text_field.dart';
-import 'package:spsr/presentation/widgets/aio_widgets/successfull_dialog.dart';
-import 'package:spsr/presentation/widgets/aio_widgets/unsuccessfull_dialog.dart';
 import 'package:spsr/utils/colors.dart';
+import 'package:spsr/services/string_extensions.dart';
 import 'package:spsr/utils/margin_padding.dart';
-import 'package:spsr/utils/strings.dart';
 import 'package:spsr/utils/styles.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -22,7 +24,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   //Scafoold Global key for this screen
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
 
-//Controller for text Fields in the Screen.
+  //Controller for text Fields in the Screen.
   TextEditingController _nameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _passwordConfirmController = TextEditingController();
@@ -43,8 +45,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   String _mobileError = '';
   String _emailError = '';
 
+  ///Postion Var For Current Emp Position.
+  Position? _position;
+  List<Address>? _addrressListCurrent;
+
   @override
   void initState() {
+    //Get Current Location
+    _getUserLocation();
     super.initState();
   }
 
@@ -60,17 +68,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: MyColors.white,
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
-          color: MyColors.white,
+    return BlocListener<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthLoading) {
+          loadingDialog(context);
+        } else if (state is AuthSignUpSPSuccess) {
+          //Remove The Loading Dialog
+          Navigator.of(context).pop();
+          //Now Navigate to SP Home Screen
+          // Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
+        } else if (state is AuthLoginSRSuccess) {
+          Navigator.of(context).pop();
+          //Now Navigate to SR Home Screen
+          // Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SR_ROUTE);
+        } else if (state is AuthFailure) {
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: MyColors.white,
+        body: SingleChildScrollView(
           child: Container(
-            padding: MarginPadding.PADDING_SYMMETRIC_20,
-            width: MediaQuery.of(context).size.width,
-            child: _getCopleteSignUpScreenBody(),
+            margin: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+            color: MyColors.white,
+            child: Container(
+              padding: MarginPadding.PADDING_SYMMETRIC_20,
+              width: MediaQuery.of(context).size.width,
+              child: _getCopleteSignUpScreenBody(),
+            ),
           ),
         ),
       ),
@@ -111,6 +137,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           autofocus: false,
           textEditingController: _nameController,
           labelTextTextField: _nameLanel,
+          keyboardType: TextInputType.name,
           errorText: _nameError,
           maxLines: 1,
           maxLength: 30,
@@ -119,6 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         MyTextField(
           autofocus: false,
           textEditingController: _mobileController,
+          keyboardType: TextInputType.phone,
           labelTextTextField: _mobilelabel,
           errorText: _mobileError,
           maxLines: 1,
@@ -129,6 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           autofocus: false,
           textEditingController: _emailController,
           labelTextTextField: _emailLabel,
+          keyboardType: TextInputType.emailAddress,
           errorText: _emailError,
           maxLines: 1,
           maxLength: 70,
@@ -192,42 +221,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Show Dialog Method
-  void _loadingDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            padding: MarginPadding.PADDING_SYMMETRIC_15_15,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                CircularProgressIndicator(),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 15,
-                  ),
-                  child: Text("Please wait.."),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
   void _onRegisterClicKed() {
-    // print('Register Clicked');
-
-    // //Show Dialog
-    // _loadingDialog();
-
     //Setting error Back to null;
     setState(() {
       _nameError = '';
@@ -235,112 +229,144 @@ class _SignUpScreenState extends State<SignUpScreen> {
       _passwordConfirmError = '';
       _mobileError = '';
       _emailError = '';
-      //Validating the Employee Id and Password Field.
-      String employeeIdString = _nameController.text.trim();
-      String passwordString = _passwordController.text.trim();
-      String confirmPasswordString = _passwordConfirmController.text.trim();
-      String securityQuesString = _mobileController.text.trim();
-      String securityAnsString = _emailController.text.trim();
-
-      //validating Employee Id
-      if (employeeIdString == null || employeeIdString.length < 9) {
-        setState(() {
-          _nameError = 'Invalid ID';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      //validating Employee password
-      if (passwordString == null || passwordString.length < 6) {
-        setState(() {
-          _passwordError = 'Min Length 6';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      //Validating password for diffreent characters.
-      if (passwordString.contains('%')) {
-        // print('Found');
-        setState(() {
-          _passwordError = '% is not allowed!';
-        });
-        // Navigator.pop(context); //pop dialog
-        return;
-      }
-
-      //Validating password for diffreent characters.
-      if (passwordString.contains('\$')) {
-        // print('Found');
-        setState(() {
-          _passwordError = '\$ is not allowed!';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      if (confirmPasswordString != passwordString) {
-        setState(() {
-          _passwordConfirmError = 'Password not matched.';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      //Validating Security Question
-      if (securityQuesString == null || securityQuesString.length < 1) {
-        setState(() {
-          _mobileError = 'Field required';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      //Validating Security Answer
-      if (securityAnsString == null || securityAnsString.length < 1) {
-        setState(() {
-          _emailError = 'Answer required';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
-
-      //Validaing quest answer should not match
-      if (securityQuesString == securityAnsString) {
-        setState(() {
-          _emailError = 'Question and anser cant be same.';
-        });
-        // Navigator.pop(context); //pop dialog
-
-        return;
-      }
     });
+    //Validating the Employee Id and Password Field.
+    String nameString = _nameController.text.trim();
+    String passwordString = _passwordController.text.trim();
+    String confirmPasswordString = _passwordConfirmController.text.trim();
+    String mobileString = _mobileController.text.trim();
+    String emailString = _emailController.text.trim();
+
+    //validating Employee Id
+    if (nameString.isEmpty || nameString.length < 3) {
+      setState(() {
+        _nameError = 'Invalid Name';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    //Validating Security Question
+    if (mobileString.isEmpty ||
+        mobileString.length != 10 ||
+        !mobileString.isNumeric()) {
+      setState(() {
+        _mobileError = 'Invalid Mobile';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    //Validating Security Answer
+    if (emailString.isEmpty || !emailString.isValidEmail()) {
+      setState(() {
+        _emailError = 'Invalid Email';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    //validating Employee password
+    if (passwordString.isEmpty || passwordString.length < 6) {
+      setState(() {
+        _passwordError = 'Min Length 6';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    //Validating password for diffreent characters.
+    if (passwordString.contains('%')) {
+      // print('Found');
+      setState(() {
+        _passwordError = '% is not allowed!';
+      });
+      // Navigator.pop(context); //pop dialog
+      return;
+    }
+
+    //Validating password for diffreent characters.
+    if (passwordString.contains('\$')) {
+      // print('Found');
+      setState(() {
+        _passwordError = '\$ is not allowed!';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    if (confirmPasswordString != passwordString) {
+      setState(() {
+        _passwordConfirmError = 'Password not matched.';
+      });
+      // Navigator.pop(context); //pop dialog
+
+      return;
+    }
+
+    //Now Validate Current Location and Address
+    if (_position == null || _addrressListCurrent == null) {
+      showSnackBar(context, 'Please wait your location not found', sec: 3);
+      return;
+    }
+    Coordinates pos = Coordinates(_position?.latitude, _position?.longitude);
+    Address add = _addrressListCurrent![0];
+
+    //Now EveryThing is Ok Call SignUp in Auth Cubit
+    BlocProvider.of<AuthCubit>(context).signupSpUser(
+        nameString, emailString, mobileString, passwordString, pos, add);
   }
 
-  //Method to Show SuccessUnSuccessFull Dialog.
-  void _showSuccessFullUnsuccessFullDialog(bool isSuccessFull, String msg) {
-    //Show Dialog method To Show Any Dialog.
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: isSuccessFull
-              ? SuccessFullDialogWidget(
-                  msg: msg,
-                  popTimes: 2,
-                )
-              : UnsuccessFullDialogWidget(msg: msg),
-        );
-      },
-    );
+  //Method To Request For Location From User
+  void _getUserLocation() async {
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        //Delay for Reading
+        showDetailDialogLocation(
+            context, 'GPS is not enable, Please enable it first!');
+      }
+
+      //Checking Location Permission
+      permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        // return;
+      }
+
+      //Checking If Denied Forever.
+      if (permission == LocationPermission.deniedForever) {
+        showDetailDialogLocation(context,
+            'Location permission is denied. Please provide manually from settings.');
+
+        // return;
+      }
+
+      if (permission == LocationPermission.always ||
+          permission == LocationPermission.whileInUse) {
+        await Geolocator.getCurrentPosition().then((position) async {
+          print(position.toString());
+          _position = position;
+          final coordinates =
+              new Coordinates(position.latitude, position.longitude);
+          _addrressListCurrent =
+              await Geocoder.local.findAddressesFromCoordinates(coordinates);
+
+          setState(() {});
+        });
+      }
+    } catch (e) {
+      showSnackBar(context, e.toString(), sec: 3);
+    }
   }
 
   //Method to be called on Sign In Button Click.
