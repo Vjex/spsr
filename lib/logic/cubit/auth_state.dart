@@ -46,8 +46,10 @@ class AuthLoginSRSuccess extends AuthState {
 
 class AuthSignUpSPSuccess extends AuthState {
   final int result;
+  final String msg;
   AuthSignUpSPSuccess({
     required this.result,
+    required this.msg,
   });
 }
 

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:geocoder/model.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '/constants/constant_strings.dart';
 import '/data/models/user_sp_model.dart';
@@ -66,13 +67,13 @@ class AuthRepository {
 
   //SignUp SP
   static APIService<dynamic> signUpSP(String name, String email, String mobile,
-      String pass, Coordinates position, Address address) {
+      String pass, LatLng position, Placemark address) {
     var bodyP = {
       'appkey': 'signUp',
       'name': name,
       'mobile': email,
       'email': pass,
-      'address': address.addressLine,
+      'address': address.name,
       'password': pass,
       'lat': position.latitude,
       'long': position.longitude,

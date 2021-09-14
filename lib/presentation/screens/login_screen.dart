@@ -93,6 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
           Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SR_ROUTE);
         } else if (state is AuthFailure) {
           Navigator.of(context).pop();
+
+          showSuccessFullUnsuccessFullDialog(context, false, state.erroMsg);
         }
       },
       child: Scaffold(

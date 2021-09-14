@@ -75,14 +75,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
         } else if (state is AuthSignUpSPSuccess) {
           //Remove The Loading Dialog
           Navigator.of(context).pop();
+
+          showSuccessFullUnsuccessFullDialog(context, true, state.msg);
           //Now Navigate to SP Home Screen
           // Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
-        } else if (state is AuthLoginSRSuccess) {
-          Navigator.of(context).pop();
-          //Now Navigate to SR Home Screen
-          // Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SR_ROUTE);
         } else if (state is AuthFailure) {
           Navigator.of(context).pop();
+
+          showSuccessFullUnsuccessFullDialog(context, false, state.erroMsg);
         }
       },
       child: Scaffold(
@@ -146,7 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
         MyTextField(
           autofocus: false,
           textEditingController: _mobileController,
-          keyboardType: TextInputType.phone,
+          keyboardType: TextInputType.number,
           labelTextTextField: _mobilelabel,
           errorText: _mobileError,
           maxLines: 1,
@@ -285,7 +285,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _passwordError = '% is not allowed!';
       });
-      // Navigator.pop(context); //pop dialog
+
       return;
     }
 
@@ -295,7 +295,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _passwordError = '\$ is not allowed!';
       });
-      // Navigator.pop(context); //pop dialog
 
       return;
     }
@@ -304,8 +303,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       setState(() {
         _passwordConfirmError = 'Password not matched.';
       });
-      // Navigator.pop(context); //pop dialog
-
       return;
     }
 

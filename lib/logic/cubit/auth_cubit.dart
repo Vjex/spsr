@@ -1,8 +1,8 @@
-import 'dart:convert';
-
 import 'package:bloc/bloc.dart';
-import 'package:geocoder/geocoder.dart';
-import 'package:geolocator/geolocator.dart';
+
+import 'package:geocoding/geocoding.dart';
+
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:spsr/data/models/user_sp_model.dart';
 import 'package:spsr/data/models/user_sr_model.dart';
@@ -18,7 +18,7 @@ class AuthCubit extends Cubit<AuthState> {
   //!SignUP Related/////////////////////////////////////////////LOGIN
   //For Real Login By User
   void signupSpUser(String name, String email, String mobile, String pass,
-      Coordinates position, Address address) async {
+      LatLng position, Placemark address) async {
     try {
       //Emit Auth Loading
       emit(AuthLoading());
@@ -29,7 +29,7 @@ class AuthCubit extends Cubit<AuthState> {
           name, email, mobile, pass, position, address));
 
       if (data['status'] == 1) {
-        emit(AuthSignUpSPSuccess(result: 1));
+        emit(AuthSignUpSPSuccess(result: 1, msg: data['msg']));
       } else {
         emit(AuthFailure(erroMsg: data['msg']));
       }

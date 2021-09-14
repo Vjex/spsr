@@ -8,7 +8,8 @@ import 'package:spsr/utils/margin_padding.dart';
 import 'package:spsr/utils/styles.dart';
 
 void showSuccessFullUnsuccessFullDialog(
-    BuildContext context, bool isSuccessFull, String msg) {
+    BuildContext context, bool isSuccessFull, String msg,
+    {Function? function}) {
   //Show Dialog method To Show Any Dialog.
   showDialog(
     context: context,
@@ -19,6 +20,7 @@ void showSuccessFullUnsuccessFullDialog(
             ? SuccessFullDialogWidget(
                 msg: msg,
                 popTimes: 2,
+                functToExeAtEnd: function,
               )
             : UnsuccessFullDialogWidget(msg: msg),
       );

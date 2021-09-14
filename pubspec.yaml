@@ -60,7 +60,7 @@ dependencies:
 # To Use Google map
   google_maps_flutter: ^2.0.6
 # To get Address From The Cordinates.
-  geocoder: ^0.2.1
+  geocoding: ^2.0.1
 # Current Server Time  
   ntp: ^2.0.0
 # for State management
