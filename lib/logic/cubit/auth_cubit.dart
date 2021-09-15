@@ -21,7 +21,7 @@ class AuthCubit extends Cubit<AuthState> {
       LatLng position, Placemark address) async {
     try {
       //Emit Auth Loading
-      emit(AuthLoading());
+      // emit(AuthLoading());
 
       await Future.delayed(const Duration(seconds: 2));
 

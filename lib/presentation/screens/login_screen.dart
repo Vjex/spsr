@@ -79,14 +79,17 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
+      listener: (contexttt, state) {
         if (state is AuthLoading) {
           loadingDialog(context);
         } else if (state is AuthLoginSPSuccess) {
           //Remove The Loading Dialog
           Navigator.of(context).pop();
-          //Now Navigate to SP Home Screen
-          Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
+          showSnackBar(context, 'Log-In Successful', backColor: Colors.green);
+          Future.delayed(Duration(seconds: 1)).then((value) {
+            //Now Navigate to SP Home Screen
+            Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
+          });
         } else if (state is AuthLoginSRSuccess) {
           Navigator.of(context).pop();
           //Now Navigate to SR Home Screen

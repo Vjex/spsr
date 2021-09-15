@@ -85,20 +85,23 @@ class _SplashScreenState extends State<SplashScreen> {
         _isUserLogined = false;
       }
 
+      //comment this Navigation and Uncomment bellow or sothe other code commented in build listner. for real usage
+      _navigateToSignIN();
+
       // sp
-      if (_isUserLogined && _userType.isNotEmpty && _userType == 'sp') {
-        var d = await User.getEmployeeDetails();
+      // if (_isUserLogined && _userType.isNotEmpty && _userType == 'sp') {
+      //   var d = await User.getEmployeeDetails();
 
-        var data = SPModel.fromMap(d);
-        BlocProvider.of<AuthCubit>(context).loginSPSrUserBackend(spUser: data);
-      } else if (_isUserLogined && _userType.isNotEmpty && _userType == 'sr') {
-        var d = await User.getEmployeeDetails();
+      //   var data = SPModel.fromMap(d);
+      //   BlocProvider.of<AuthCubit>(context).loginSPSrUserBackend(spUser: data);
+      // } else if (_isUserLogined && _userType.isNotEmpty && _userType == 'sr') {
+      //   var d = await User.getEmployeeDetails();
 
-        var data = SRModel.fromMap(d);
-        BlocProvider.of<AuthCubit>(context).loginSPSrUserBackend(srUser: data);
-      } else {
-        BlocProvider.of<AuthCubit>(context).emitAuthInitialState();
-      }
+      //   var data = SRModel.fromMap(d);
+      //   BlocProvider.of<AuthCubit>(context).loginSPSrUserBackend(srUser: data);
+      // } else {
+      //   BlocProvider.of<AuthCubit>(context).emitAuthInitialState();
+      // }
     });
 
     super.didChangeDependencies();

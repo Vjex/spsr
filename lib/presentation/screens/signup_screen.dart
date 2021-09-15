@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:geocoder/geocoder.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:spsr/logic/cubit/auth_cubit.dart';
 import 'package:spsr/presentation/widgets/aio_widgets/every_screen_widget.dart';
 
@@ -47,7 +48,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   ///Postion Var For Current Emp Position.
   Position? _position;
-  List<Address>? _addrressListCurrent;
+  List<Placemark>? _addrressListCurrent;
 
   @override
   void initState() {
@@ -69,22 +70,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthCubit, AuthState>(
-      listener: (context, state) {
+      listener: (contextt, state) {
         if (state is AuthLoading) {
           loadingDialog(context);
         } else if (state is AuthSignUpSPSuccess) {
           //Remove The Loading Dialog
           Navigator.of(context).pop();
 
-          showSuccessFullUnsuccessFullDialog(context, true, state.msg);
+          Future.delayed(Duration(seconds: 1)).then((value) {
+            //Now Navigate to SP Home Screen
+            showSuccessFullUnsuccessFullDialog(context, true, state.msg);
+          });
+
           //Now Navigate to SP Home Screen
           // Navigator.of(context).pushReplacementNamed(MyRoutes.HOME_SP_ROUTE);
         } else if (state is AuthFailure) {
           Navigator.of(context).pop();
 
-          showSuccessFullUnsuccessFullDialog(context, false, state.erroMsg);
+          Future.delayed(Duration(seconds: 1)).then((value) {
+            showSuccessFullUnsuccessFullDialog(context, false, state.erroMsg);
+          });
         }
-      },
+      }, //Now Navigate to SP Home Screen
       child: Scaffold(
         key: _scaffoldKey,
         backgroundColor: MyColors.white,
@@ -311,8 +318,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       showSnackBar(context, 'Please wait your location not found', sec: 3);
       return;
     }
-    Coordinates pos = Coordinates(_position?.latitude, _position?.longitude);
-    Address add = _addrressListCurrent![0];
+    LatLng pos = LatLng(_position!.latitude, _position!.longitude);
+    Placemark add = _addrressListCurrent![0];
 
     //Now EveryThing is Ok Call SignUp in Auth Cubit
     BlocProvider.of<AuthCubit>(context).signupSpUser(
@@ -353,16 +360,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
         await Geolocator.getCurrentPosition().then((position) async {
           print(position.toString());
           _position = position;
-          final coordinates =
-              new Coordinates(position.latitude, position.longitude);
-          _addrressListCurrent =
-              await Geocoder.local.findAddressesFromCoordinates(coordinates);
+
+          _addrressListCurrent = await placemarkFromCoordinates(
+              position.latitude, position.longitude);
 
           setState(() {});
         });
       }
     } catch (e) {
-      showSnackBar(context, e.toString(), sec: 3);
+      if (mounted) showSnackBar(context, e.toString(), sec: 3);
     }
   }
 
