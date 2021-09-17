@@ -304,7 +304,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       });
 
       return;
-    }
+    } 
 
     if (confirmPasswordString != passwordString) {
       setState(() {
@@ -325,6 +325,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     BlocProvider.of<AuthCubit>(context).signupSpUser(
         nameString, emailString, mobileString, passwordString, pos, add);
   }
+
 
   //Method To Request For Location From User
   void _getUserLocation() async {
@@ -371,6 +372,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
       if (mounted) showSnackBar(context, e.toString(), sec: 3);
     }
   }
+
+
 
   //Method to be called on Sign In Button Click.
   void _onLoginClicked() {
